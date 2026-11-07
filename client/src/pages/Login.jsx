@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.js';
+import { Icon, Logo } from '../components/ui.jsx';
+
+const FEATURES = [
+  ['scan', 'Passive, safe checks', 'Headers, cookies, TLS and exposed files. No payloads, no exploitation.'],
+  ['key', 'Ownership verified', 'Only scan domains you can prove you control.'],
+  ['refresh', 'Continuous monitoring', 'Scheduled re-scans and score history catch regressions early.'],
+];
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -20,21 +27,59 @@ export default function Login() {
   }
 
   return (
-    <div className="center">
-      <form className="card auth" onSubmit={submit}>
-        <h1>🛡️ SecureScope</h1>
-        <p className="muted">Continuous, passive security posture monitoring for the sites you own.</p>
-        {mode === 'register' && <input placeholder="Name" value={form.name} onChange={set('name')} required />}
-        <input type="email" placeholder="Email" value={form.email} onChange={set('email')} required autoComplete="email" />
-        <input type="password" placeholder="Password" value={form.password} onChange={set('password')} required
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
-        {mode === 'register' && <small className="muted">10+ characters with upper, lower case and a digit.</small>}
-        {error && <div className="error">{error}</div>}
-        <button className="btn" disabled={busy}>{mode === 'login' ? 'Sign in' : 'Create account'}</button>
-        <button type="button" className="link" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}>
-          {mode === 'login' ? 'Need an account? Register' : 'Have an account? Sign in'}
-        </button>
-      </form>
+    <div className="auth-page">
+      <section className="auth-hero">
+        <div className="hero-brand"><Logo size={38} /><b>SecureScope</b></div>
+        <div className="hero-copy">
+          <span className="eyebrow"><Icon name="bolt" size={14} /> Web security, simplified</span>
+          <h1>Know your security posture <em>before attackers do.</em></h1>
+          <p>Continuous, passive monitoring for the sites you own — scored, explained and tracked over time.</p>
+          <ul>
+            {FEATURES.map(([icon, t, d]) => (
+              <li key={t}><span><Icon name={icon} size={18} /></span><div><b>{t}</b><small>{d}</small></div></li>
+            ))}
+          </ul>
+        </div>
+        <div className="hero-card" aria-hidden="true">
+          <div className="hc-top"><span>shop.example.com</span><i>Verified</i></div>
+          <div className="hc-main">
+            <div className="hc-ring"><b>92</b><small>Grade A</small></div>
+            <div className="hc-rows">
+              <p><i className="s-crit" />0 critical</p><p><i className="s-med" />2 medium</p><p><i className="s-low" />3 low</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-form-wrap">
+        <form className="auth-form" onSubmit={submit}>
+          <h2>{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
+          <p className="muted">{mode === 'login' ? 'Sign in to view your security dashboard.' : 'Start monitoring your sites in minutes.'}</p>
+
+          {mode === 'register' && (
+            <label className="field"><span>Full name</span>
+              <input placeholder="Ada Lovelace" value={form.name} onChange={set('name')} required autoComplete="name" /></label>
+          )}
+          <label className="field"><span>Email</span>
+            <input type="email" placeholder="you@company.com" value={form.email} onChange={set('email')} required autoComplete="email" /></label>
+          <label className="field"><span>Password</span>
+            <input type="password" placeholder="••••••••••" value={form.password} onChange={set('password')} required
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            {mode === 'register' && <small>At least 10 characters with upper case, lower case and a number.</small>}
+          </label>
+
+          {error && <div className="alert-box"><Icon name="alert" size={17} />{error}</div>}
+          <button className="btn primary block" disabled={busy}>{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}</button>
+
+          <p className="switch">
+            {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+            <button type="button" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}>
+              {mode === 'login' ? 'Create one' : 'Sign in'}
+            </button>
+          </p>
+          <div className="secure-note"><Icon name="lock" size={14} />Protected by rotating httpOnly sessions, rate limiting and account lockout.</div>
+        </form>
+      </section>
     </div>
   );
 }
